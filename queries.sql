@@ -1,4 +1,4 @@
-drop database little_lemon_db;
+-- drop database little_lemon_db;
 show databases;
 use little_lemon_db;
 
@@ -11,6 +11,7 @@ select order_id,
         total_cost
 from Orders
 where quantity > 2;
+
 select * from OrdersView;
 
 -- Join
@@ -80,3 +81,107 @@ end //
 delimiter ;
 
 call CancelOrder(1);
+
+-- Populate Bookings Table
+insert into Customers (customer_id, name, contact_details) values
+(1, 'Isla Nou', '12345678'),
+(2, 'Neo Cham', '23456789'),
+(3, 'Maggie Dan', '34567890');
+
+select * from Customers;
+
+insert into Bookings (booking_id, date, table_number, customer_id) values
+(1, '2022-10-10', 5, 1),
+(2, '2022-11-12', 3, 3),
+(3, '2022-10-11', 2, 2),
+(4, '2022-10-13', 2, 1);
+
+select * from Bookings;
+
+-- Check Booking Procedure
+delimiter //
+
+create procedure CheckBooking(in bookingDate date, in tableNumber int)
+begin
+	declare tableBooked int;
+    
+    select count(*) into tableBooked from Bookings where date = bookingDate and table_number = tableNumber;
+    
+    if tableBooked > 0 then
+		select 'Table is already booked.' as BookingStatus;
+	else
+		select 'Table is available.' as BookingStatus;
+	end if;
+end//
+
+delimiter ;
+
+call CheckBooking('2022-10-11', 2);
+call CheckBooking('2022-11-12', 5);
+
+-- Booking Procedure and Transaction
+delimiter //
+
+create procedure AddValidBooking(in bookingDate date, in tableNumber int, in customerID varchar(255))
+begin
+	declare tableBooked int;
+    
+    start transaction;
+    
+    select count(*) into tableBooked from Bookings where date = bookingDate and table_number = tableNumber;
+    
+    if tableBooked > 0 then
+		rollback;
+        select 'Booking declined: Table is already booked.' as StatusMessage;
+	else
+		insert into Bookings (booking_id, date, table_number, customer_id) values (100, bookingDate, tableNumber, customerID);
+        commit;
+        select 'Booking confirmed.' as StatusMessage;
+	end if;
+end //
+
+delimiter ;
+
+call AddValidBooking('2022-12-17', 6, 1);
+call AddValidBooking('2022-10-10', 5, 1);
+
+-- Add Booking Procedure
+delimiter //
+
+create procedure AddBooking(in bookingID int, in customerID int, in bookingDate date, in tableNumber int)
+begin
+	insert into Bookings (booking_id, date, table_number, customer_id) values
+    (bookingID, bookingDate, tableNumber, customerID);
+end //
+
+delimiter ;
+
+call AddBooking(9, 3, '2022-12-30', 4);
+
+-- Update Booking Procedure
+delimiter //
+
+create procedure UpdateBooking(in bookingID int, in bookingDate date)
+begin
+	update Bookings
+    set date = bookingDate
+    where booking_id = bookingID;
+end //
+
+delimiter ;
+
+call UpdateBooking(9, '2022-12-15');
+
+-- Cancel Booking Procedure
+delimiter //
+
+create procedure CancelBooking(in bookingID int)
+begin
+	delete from Bookings
+    where booking_id = bookingID;
+end //
+
+delimiter ;
+
+call CancelBooking(100);
+

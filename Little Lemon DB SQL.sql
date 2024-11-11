@@ -15,17 +15,6 @@ CREATE SCHEMA IF NOT EXISTS `little_lemon_db` DEFAULT CHARACTER SET utf8 ;
 USE `little_lemon_db` ;
 
 -- -----------------------------------------------------
--- Table `little_lemon_db`.`Bookings`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `little_lemon_db`.`Bookings` (
-  `booking_id` INT NOT NULL AUTO_INCREMENT,
-  `date` DATETIME NULL,
-  `table_number` INT NULL,
-  PRIMARY KEY (`booking_id`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `little_lemon_db`.`Customers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `little_lemon_db`.`Customers` (
@@ -37,6 +26,24 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `little_lemon_db`.`Bookings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `little_lemon_db`.`Bookings` (
+  `booking_id` INT NOT NULL AUTO_INCREMENT,
+  `date` DATETIME NULL,
+  `table_number` INT NULL,
+  `customer_id` INT NOT NULL,
+  PRIMARY KEY (`booking_id`),
+  INDEX `fk_Bookings_Customers1_idx` (`customer_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Bookings_Customers1`
+    FOREIGN KEY (`customer_id`)
+    REFERENCES `little_lemon_db`.`Customers` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `little_lemon_db`.`Orders`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `little_lemon_db`.`Orders` (
@@ -44,16 +51,9 @@ CREATE TABLE IF NOT EXISTS `little_lemon_db`.`Orders` (
   `order_date` DATETIME NULL,
   `quantity` INT NULL,
   `total_cost` DECIMAL(2) NULL,
-  `booking_id` INT NOT NULL,
   `customer_id` INT NOT NULL,
   PRIMARY KEY (`order_id`),
-  INDEX `fk_Orders_Bookings_idx` (`booking_id` ASC) VISIBLE,
   INDEX `fk_Orders_Customer_Details1_idx` (`customer_id` ASC) VISIBLE,
-  CONSTRAINT `fk_Orders_Bookings`
-    FOREIGN KEY (`booking_id`)
-    REFERENCES `little_lemon_db`.`Bookings` (`booking_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Orders_Customer_Details1`
     FOREIGN KEY (`customer_id`)
     REFERENCES `little_lemon_db`.`Customers` (`customer_id`)
