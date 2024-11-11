@@ -4,6 +4,68 @@ use little_lemon_db;
 
 show tables;
 
+-- Insert example data
+-- Insert example data into Customers
+INSERT INTO Customers (name, contact_details) VALUES
+('John Doe', 'john.doe@example.com'),
+('Jane Smith', 'jane.smith@example.com'),
+('Alice Johnson', 'alice.johnson@example.com'),
+('Bob Brown', 'bob.brown@example.com');
+
+select * from Customers;
+
+-- Insert example data into Menu
+INSERT INTO Menu (cuisine, menu_name) VALUES
+('Italian', 'Pasta Special'),
+('Mexican', 'Taco Fiesta'),
+('Indian', 'Curry Delight');
+
+select * from Menu;
+
+-- Insert example data into Orders
+INSERT INTO Orders (order_date, quantity, total_cost, customer_id) VALUES
+('2023-10-01 18:30:00', 2, 29.99, 12),
+('2023-10-01 19:00:00', 1, 15.50, 13),
+('2023-10-01 19:30:00', 3, 45.00, 14),
+('2023-10-01 20:00:00', 1, 20.00, 15);
+
+select * from Orders;
+
+-- Insert example data into MenuItems
+INSERT INTO MenuItems (CourseName, StarterName, DessertName, menu_id, order_id) VALUES
+('Main Course', 'Garlic Bread', 'Tiramisu', 1, 1),
+('Main Course', 'Nachos', 'Churros', 2, 2),
+('Main Course', 'Butter Chicken', 'Gulab Jamun', 3, 3),
+('Main Course', 'Spaghetti', 'Panna Cotta', 1, 4);
+
+select * from MenuItems;
+
+-- Insert example data into Bookings
+INSERT INTO Bookings (date, table_number, customer_id) VALUES
+('2023-10-01 18:00:00', 1, 12),
+('2023-10-01 19:00:00', 2, 13),
+('2023-10-01 19:30:00', 3, 14),
+('2023-10-01 20:00:00', 4, 15);
+
+select * from Bookings;
+
+-- Insert example data into Order_Delivery_Status
+INSERT INTO Order_Delivery_Status (delivary_date, status, order_id) VALUES
+('2023-10-01 19:00:00', 'Delivered', 1),
+('2023-10-01 19:30:00', 'Pending', 2),
+('2023-10-01 20:00:00', 'Delivered', 3),
+('2023-10-01 20:30:00', 'Pending', 4);
+
+select * from Order_Delivery_Status;
+
+-- Insert example data into Staff_Information
+INSERT INTO Staff_Information (role, salary) VALUES
+('Chef', 50),
+('Waiter', 30),
+('Manager', 60);
+
+select * from Staff_Information;
+
 -- Create View
 create view OrdersView as
 select order_id,
@@ -14,7 +76,7 @@ where quantity > 2;
 
 select * from OrdersView;
 
--- Join
+-- Join 1
 select
 	c.customer_id,
 	c.name,
@@ -40,7 +102,7 @@ where
 order by
 	o.total_cost asc;
 
--- Join
+-- Join 2
 select menu_name
 from Menu
 where menu_id in (
@@ -66,7 +128,7 @@ call GetMaxQuantity();
 -- Prepared Statement
 set @sql = 'select order_id, quantity, total_cost from Orders where customer_id = ?';
 prepare GetOrderDetail from @sql;
-set @id = 1;
+set @id = 12;
 execute GetOrderDetail using @id;
 deallocate prepare GetOrderDetail;
 
@@ -158,6 +220,8 @@ delimiter ;
 
 call AddBooking(9, 3, '2022-12-30', 4);
 
+select * from Bookings;
+
 -- Update Booking Procedure
 delimiter //
 
@@ -172,6 +236,8 @@ delimiter ;
 
 call UpdateBooking(9, '2022-12-15');
 
+select * from Bookings;
+
 -- Cancel Booking Procedure
 delimiter //
 
@@ -185,3 +251,4 @@ delimiter ;
 
 call CancelBooking(100);
 
+select * from Bookings;
